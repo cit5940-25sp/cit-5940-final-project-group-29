@@ -1,6 +1,7 @@
 package model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -16,6 +17,7 @@ public class Movie {
     private Set<Person> writers;
     private Set<Person> composers;
     private Set<Person> cinematographers;
+    private int id;
 
     /**
      * Constructs a Movie object with the specified title and year.
@@ -24,14 +26,17 @@ public class Movie {
      * @param year  the release year of the movie
      */
     public Movie(String title, int year) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty");
+        }
         this.title = title;
         this.year = year;
-        genres = new HashSet<>();
-        actors = new HashSet<>();
-        directors = new HashSet<>();
-        writers = new HashSet<>();
-        composers = new HashSet<>();
-        cinematographers = new HashSet<>();
+        this.genres = new HashSet<>();
+        this.actors = new HashSet<>();
+        this.directors = new HashSet<>();
+        this.writers = new HashSet<>();
+        this.composers = new HashSet<>();
+        this.cinematographers = new HashSet<>();
     }
 
     /**
@@ -106,6 +111,23 @@ public class Movie {
     }
 
     /**
+     * Gets the TMDB ID of the movie.
+     * @return the movie ID
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Sets the TMDB ID of the movie.
+     * @param id the movie ID
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+
+    /**
      * Adds a cinematographer to this movie.
      * @param cinematographer the cinematographer to add
      */
@@ -160,6 +182,20 @@ public class Movie {
 
     @Override
     public String toString() {
-        return title + " (" + year + ")";
+        return String.format("%s (%d)", title, year);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Movie movie = (Movie) o;
+        return year == movie.year &&
+                Objects.equals(title, movie.title);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, year);
     }
 }

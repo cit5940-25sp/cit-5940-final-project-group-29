@@ -100,4 +100,15 @@ public class MovieIndex {
         return suggestions;
     }
 
+    /**
+     * Randomly selects a movie from the indexed list.
+     *
+     * @return a random Movie, or null if no movies are indexed
+     */
+    public Movie getRandomMovie() {
+        if (titleToMovie.isEmpty()) return null;
+        List<Movie> allMovies = new ArrayList<>(titleToMovie.values());
+        return allMovies.get(new Random().nextInt(allMovies.size()));
+    }
+
 }
