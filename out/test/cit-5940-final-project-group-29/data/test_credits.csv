@@ -1,0 +1,3 @@
+movie_id,title,cast,crew
+1,Inception,"[{""cast_id"":1,""character"":""Cobb"",""name"":""Leonardo DiCaprio""}]","[{""job"":""Director"",""name"":""Christopher Nolan""}]"
+2,The Dark Knight,"[{""cast_id"":1,""character"":""Bruce Wayne"",""name"":""Christian Bale""}]","[{""job"":""Director"",""name"":""Christopher Nolan""}]"

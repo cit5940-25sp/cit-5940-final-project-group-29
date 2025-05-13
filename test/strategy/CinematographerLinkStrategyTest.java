@@ -9,6 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CinematographerLinkStrategyTest {
 
+    /**
+     * Tests that two movies with the same cinematographer return true for isValidLink.
+     */
     @Test
     void testValidLinkWhenSharedCinematographer() {
         Movie a = new Movie("A", 2000);
@@ -22,6 +25,9 @@ class CinematographerLinkStrategyTest {
         assertTrue(strat.getReason(a, b).contains("Jane Doe"));
     }
 
+    /**
+     * Tests that movies with different cinematographers return false.
+     */
     @Test
     void testInvalidLinkWithoutSharedCinematographer() {
         Movie a = new Movie("A", 2000);

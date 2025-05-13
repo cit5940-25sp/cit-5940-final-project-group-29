@@ -17,4 +17,14 @@ public class PersonTest {
         assertEquals("Christopher Nolan", person.getName());
         assertEquals(PersonRole.DIRECTOR, person.getRole());
     }
+
+    /**
+     * Tests that the Person fields are not null after creation.
+     */
+    @Test
+    public void testPersonFieldsNotNull() {
+        Person person = new Person("Hans Zimmer", PersonRole.COMPOSER);
+        assertNotNull(person.getName());
+        assertNotNull(person.getRole());
+    }
 }
