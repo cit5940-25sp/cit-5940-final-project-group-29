@@ -2,7 +2,6 @@ package strategy;
 
 import model.Movie;
 import model.Person;
-
 import java.util.Collections;
 
 /**
@@ -21,6 +20,7 @@ public class DirectorLinkStrategy implements ILinkStrategy {
         if (from == null || to == null) {
             return false;
         }
+
         // Collections.disjoint is fast and readable for set intersection checks
         return !Collections.disjoint(from.getDirectors(), to.getDirectors());
     }

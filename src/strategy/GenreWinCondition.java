@@ -8,7 +8,7 @@ import model.Player;
  */
 public class GenreWinCondition implements IWinCondition {
     private String genre;
-    private static final int WIN_COUNT = 3;
+    private static final int WIN_COUNT = 1;
 
     /**
      * Constructs a {@code GenreWinCondition} that checks if the player has named
@@ -49,6 +49,41 @@ public class GenreWinCondition implements IWinCondition {
      */
     @Override
     public String getDescription() {
-        return "You win! - by naming " + WIN_COUNT + " number of movies in the genre: " + genre;
+        return "Player wins by naming " + WIN_COUNT + " number of movies in the genre: " + genre;
+    }
+
+    /**
+     * Returns the player's progress towards winning with this genre win condition.
+     *
+     * @param player the player whose progress is being evaluated
+     * @return a string in the format "X/Y genre", where X is the number of movies from the target genre played by the player,
+     *         and Y is the required number to win. Returns "0/Y genre" if the player or their played movies are null.
+     */
+    @Override
+    public String getPlayerProgress(Player player) {
+        if (player == null || player.getPlayedMovies() == null) return "0/" + WIN_COUNT;
+        long count = player.getPlayedMovies().stream()
+                .filter(movie -> movie.getGenres().stream()
+                        .anyMatch(g -> g.equalsIgnoreCase(genre)))
+                .count();
+        return count + "/" + WIN_COUNT + " " + genre;
+    }
+
+    /**
+     * Returns the target genre associated with this win condition.
+     *
+     * @return the genre required to win the game (e.g., "Action", "Comedy")
+     */
+    public String getTargetGenreForProgress() {
+        return this.genre;
+    }
+
+    /**
+     * Returns the win count associated with this win condition.
+     *
+     * @return the number of movies required from the target genre to win
+     */
+    public int getWinCountForProgress() {
+        return WIN_COUNT;
     }
 }

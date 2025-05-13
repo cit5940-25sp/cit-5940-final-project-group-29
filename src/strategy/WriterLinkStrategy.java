@@ -2,8 +2,6 @@ package strategy;
 
 import model.Movie;
 import model.Person;
-import model.PersonRole;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;

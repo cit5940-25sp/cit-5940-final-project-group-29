@@ -91,5 +91,4 @@ public class MovieTest {
         m.addCinematographer(c);
         assertTrue(m.getCinematographers().contains(c));
     }
-
 }

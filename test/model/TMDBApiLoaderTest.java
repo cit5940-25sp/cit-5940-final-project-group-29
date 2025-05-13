@@ -1,12 +1,12 @@
 package model;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for {@link TMDBApiLoader} using pure JUnit (no mock frameworks).
@@ -84,6 +84,9 @@ class TMDBApiLoaderTest {
             }
             throw new IllegalArgumentException("Unexpected URL: " + url);
         });
+
+        // Hard-code the API key for the test to bypass the need for config.properties
+        System.setProperty("api_key", "YOUR_API_KEY");
     }
 
     /**

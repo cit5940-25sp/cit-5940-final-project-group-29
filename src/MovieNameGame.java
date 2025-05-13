@@ -1,36 +1,70 @@
-import controller.GameController;
-import java.io.IOException;
-import java.util.List;
-import model.Movie;
-import model.MovieDataLoader;
-import model.MovieIndex;
-import model.Player;
-import strategy.ActorLinkStrategy;
-import strategy.GenreWinCondition;
-import strategy.ILinkStrategy;
-import strategy.IWinCondition;
 import view.GameView;
+import java.io.IOException;
 
+/**
+ * Main application class for the Movie Name Game.
+ * Initializes the game view, loads data from CSV files, runs the game loop,
+ * and handles shutdown.
+ */
 public class MovieNameGame {
 
+    /**
+     * The main entry point of the application.
+     *
+     * @param args Command line arguments (not used).
+     */
     public static void main(String[] args) {
+        GameView gameView = null;
+        System.out.println("Starting Movie Name Game...");
+
         try {
-            List<Movie> movies = MovieDataLoader.loadMovies("data/movies.csv", "data/credits.csv");
-            MovieIndex index = new MovieIndex(movies);
+            // Create the GameView instance (initializes Lanterna)
+            gameView = new GameView();
+            System.out.println("GameView created.");
 
-            Player p1 = new Player("Player 1");
-            Player p2 = new Player("Player 2");
+            // Define the paths to your CSV data files.
+            // This assumes a 'data' subdirectory exists in your project's root or working directory.
+            String moviesCsvPath = "data/tmdb_5000_movies.csv";
+            String creditsCsvPath = "data/tmdb_5000_credits.csv";
+            System.out.println("Attempting to initialize game using CSV files:");
+            System.out.println("  Movies: " + moviesCsvPath);
+            System.out.println("  Credits: " + creditsCsvPath);
 
-            ILinkStrategy linkStrategy = new ActorLinkStrategy();
-            IWinCondition winCondition = new GenreWinCondition("Action");
+            // Initialize the game data, controller, and initial state within GameView
+            boolean initialized = gameView.initializeGame(moviesCsvPath, creditsCsvPath);
+            System.out.println("Game initialization result: " + (initialized ? "Success" : "Failed"));
 
-            GameView view = new GameView();
-
-            GameController controller = new GameController(index, linkStrategy, winCondition, p1, p2, view);
-            controller.runGame();
-
+            // If initialization was successful, run the main game loop
+            if (initialized) {
+                System.out.println("Starting game loop...");
+                gameView.runGameLoop();  // This blocks until the game ends or is exited
+                System.out.println("Game loop finished.");
+            } else {
+                // Initialization failed, GameView should display an error
+                // Wait briefly so the user might see the error in the terminal if it closes quickly
+                System.err.println("Game initialization failed. See TUI for details. Exiting.");
+                try { Thread.sleep(3000); } catch (InterruptedException ignored) {}
+            }
         } catch (IOException e) {
-            System.err.println("Error loading movie data: " + e.getMessage());
+            // Handle errors during Lanterna setup or shutdown
+            System.err.println("An critical I/O error occurred setting up or running the game view: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            // Catch any other unexpected errors during setup or runtime
+            System.err.println("An unexpected critical error occurred: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Ensure resources are cleaned up regardless of errors
+            System.out.println("Attempting to shut down GameView...");
+            if (gameView != null) {
+                try {
+                    gameView.shutdown();  // Close Lanterna screen/terminal, stop timers
+                } catch (IOException e) {
+                    System.err.println("Error during GameView shutdown: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("Movie Name Game finished.");
         }
     }
 }

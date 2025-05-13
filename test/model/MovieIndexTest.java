@@ -100,5 +100,30 @@ class MovieIndexTest {
         assertTrue(films.contains(a));
     }
 
+    /**
+     * Tests that the getAllTitlesSorted method returns the correct list of movie titles.
+     */
+    @Test
+    void testGetAllTitlesSorted() {
+        Movie movie1 = new Movie("Avatar", 2009);
+        Movie movie2 = new Movie("Avengers: Endgame", 2019);
+        Movie movie3 = new Movie("Titanic", 1997);
+
+        MovieIndex index = new MovieIndex(List.of(movie1, movie2, movie3));
+
+        Set<String> sortedTitles = index.getAllTitlesSorted();
+
+        // Verify the order and content of sorted titles
+        assertEquals(3, sortedTitles.size());
+        assertTrue(sortedTitles.contains("Avatar"));
+        assertTrue(sortedTitles.contains("Avengers: Endgame"));
+        assertTrue(sortedTitles.contains("Titanic"));
+
+        // Check the order is case-insensitive and sorted
+        String[] sortedArray = sortedTitles.toArray(new String[0]);
+        assertEquals("Avatar", sortedArray[0]);
+        assertEquals("Avengers: Endgame", sortedArray[1]);
+        assertEquals("Titanic", sortedArray[2]);
+    }
 
 }

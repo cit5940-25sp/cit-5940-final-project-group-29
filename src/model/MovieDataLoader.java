@@ -33,24 +33,34 @@ public class MovieDataLoader {
         try (BufferedReader br = new BufferedReader(new FileReader(moviesCsvPath))) {
             String headerLine = br.readLine();
             Map<String, Integer> indexMap = buildHeaderIndexMap(headerLine);
+            int requiredFieldCount = Collections.max(indexMap.values()) + 1;
 
             String line;
             while ((line = br.readLine()) != null) {
                 String[] fields = parseCsvLine(line);
-                int id = Integer.parseInt(fields[indexMap.get("id")]);
-                String title = fields[indexMap.get("title")];
-                int year = parseYear(fields[indexMap.get("release_date")]);
 
-                Movie movie = new Movie(title, year);
-
-                String genresField = fields[indexMap.get("genres")];
-                JSONArray genresArray = new JSONArray(genresField);
-                for (int i = 0; i < genresArray.length(); i++) {
-                    JSONObject genreObj = genresArray.getJSONObject(i);
-                    movie.addGenre(genreObj.getString("name"));
+                // Skip lines with missing fields
+                if (fields.length < requiredFieldCount) {
+                    continue;
                 }
 
-                movieIdToMovie.put(id, movie);
+                try {
+                    int id = Integer.parseInt(fields[indexMap.get("id")]);
+                    String title = fields[indexMap.get("title")];
+                    int year = parseYear(fields[indexMap.get("release_date")]);
+
+                    Movie movie = new Movie(title, year);
+
+                    String genresField = fields[indexMap.get("genres")];
+                    JSONArray genresArray = new JSONArray(genresField);
+                    for (int i = 0; i < genresArray.length(); i++) {
+                        JSONObject genreObj = genresArray.getJSONObject(i);
+                        movie.addGenre(genreObj.getString("name"));
+                    }
+                    movieIdToMovie.put(id, movie);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -58,47 +68,60 @@ public class MovieDataLoader {
         try (BufferedReader br = new BufferedReader(new FileReader(creditsCsvPath))) {
             String headerLine = br.readLine();
             Map<String, Integer> indexMap = buildHeaderIndexMap(headerLine);
+            int requiredFieldCount = Collections.max(indexMap.values()) + 1;
 
             String line;
             while ((line = br.readLine()) != null) {
                 String[] fields = parseCsvLine(line);
-                int movieId = Integer.parseInt(fields[indexMap.get("movie_id")]);
-                Movie movie = movieIdToMovie.get(movieId);
-                if (movie == null) {
+
+                // Skip lines with missing fields
+                if (fields.length < requiredFieldCount) {
+                    System.err.println("Skipping malformed credit line: " + line);
                     continue;
                 }
 
-                String castField = fields[indexMap.get("cast")];
-                JSONArray castArray = new JSONArray(castField);
-                for (int i = 0; i < castArray.length(); i++) {
-                    JSONObject castObj = castArray.getJSONObject(i);
-                    String name = castObj.getString("name");
-                    movie.addActor(new Person(name, PersonRole.ACTOR));
-                }
-
-                String crewField = fields[indexMap.get("crew")];
-                JSONArray crewArray = new JSONArray(crewField);
-                for (int i = 0; i < crewArray.length(); i++) {
-                    JSONObject crewObj = crewArray.getJSONObject(i);
-                    String job = crewObj.getString("job");
-                    String name = crewObj.getString("name");
-                    if ("Director".equalsIgnoreCase(job)) {
-                        movie.addDirector(new Person(name, PersonRole.DIRECTOR));
-                    } else if ("Writer".equalsIgnoreCase(job)
-                            || "Screenplay".equalsIgnoreCase(job)) {
-                        movie.addWriter(new Person(name, PersonRole.WRITER));
-                    } else if ("Original Music Composer".equalsIgnoreCase(job)) {
-                        movie.addComposer(new Person(name, PersonRole.COMPOSER));
-                    } else if ("Director of Photography".equalsIgnoreCase(job)
-                            || "Cinematographer".equalsIgnoreCase(job)) {
-                        movie.addCinematographer(new Person(name, PersonRole.CINEMATOGRAPHER));
+                try {
+                    int movieId = Integer.parseInt(fields[indexMap.get("movie_id")]);
+                    Movie movie = movieIdToMovie.get(movieId);
+                    if (movie == null) {
+                        continue;
                     }
+
+                    String castField = fields[indexMap.get("cast")];
+                    JSONArray castArray = new JSONArray(castField);
+                    for (int i = 0; i < castArray.length(); i++) {
+                        JSONObject castObj = castArray.getJSONObject(i);
+                        String name = castObj.getString("name");
+                        movie.addActor(new Person(name, PersonRole.ACTOR));
+                    }
+
+                    String crewField = fields[indexMap.get("crew")];
+                    JSONArray crewArray = new JSONArray(crewField);
+                    for (int i = 0; i < crewArray.length(); i++) {
+                        JSONObject crewObj = crewArray.getJSONObject(i);
+                        String job = crewObj.getString("job");
+                        String name = crewObj.getString("name");
+
+                        if ("Director".equalsIgnoreCase(job)) {
+                            movie.addDirector(new Person(name, PersonRole.DIRECTOR));
+                        } else if ("Writer".equalsIgnoreCase(job) || "Screenplay".equalsIgnoreCase(job)) {
+                            movie.addWriter(new Person(name, PersonRole.WRITER));
+                        } else if ("Original Music Composer".equalsIgnoreCase(job)) {
+                            movie.addComposer(new Person(name, PersonRole.COMPOSER));
+                        } else if ("Director of Photography".equalsIgnoreCase(job)
+                                || "Cinematographer".equalsIgnoreCase(job)) {
+                            movie.addCinematographer(new Person(name, PersonRole.CINEMATOGRAPHER));
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to parse credit line: " + line);
+                    e.printStackTrace();
                 }
             }
         }
-
         return new ArrayList<>(movieIdToMovie.values());
     }
+
 
     /**
      * Builds a mapping from CSV header names to their column indices.
@@ -125,6 +148,7 @@ public class MovieDataLoader {
         List<String> fields = new ArrayList<>();
         boolean inQuotes = false;
         StringBuilder sb = new StringBuilder();
+
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
             if (c == '"') {
@@ -142,6 +166,7 @@ public class MovieDataLoader {
                 sb.append(c);
             }
         }
+
         fields.add(sb.toString());
         return fields.toArray(new String[0]);
     }
@@ -156,6 +181,7 @@ public class MovieDataLoader {
         if (releaseDate == null || releaseDate.length() < 4) {
             return 0;
         }
+
         try {
             return Integer.parseInt(releaseDate.substring(0, 4));
         } catch (NumberFormatException e) {

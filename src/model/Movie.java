@@ -10,6 +10,7 @@ import java.util.Set;
 public class Movie {
     private String title;
     private int year;
+    private int id;
     private Set<String> genres;
     private Set<Person> actors;
     private Set<Person> directors;
@@ -158,6 +159,11 @@ public class Movie {
         composers.add(composer);
     }
 
+    /**
+     * Returns the movie's title and year in "title (year)" format.
+     *
+     * @return Formatted string "title (year)"
+     */
     @Override
     public String toString() {
         return title + " (" + year + ")";

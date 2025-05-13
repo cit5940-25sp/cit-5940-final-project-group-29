@@ -19,4 +19,11 @@ public interface IWinCondition {
      * @return a string describing the win condition
      */
     String getDescription();
+
+    /**
+     * Provides a string describing the player's current progress towards this win condition.
+     * @param player The player whose progress is being queried.
+     * @return A string like "X/Y criteria met".
+     */
+    String getPlayerProgress(Player player);
 }
